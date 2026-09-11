@@ -40,7 +40,7 @@ jobs:
 
       - name: Installation des dépendances API
         working-directory: ./api
-        run: npm ci
+        run: npm install
 
       - name: Vérification de la syntaxe et du code API
         working-directory: ./api
