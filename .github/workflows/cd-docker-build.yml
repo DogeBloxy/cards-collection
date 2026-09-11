@@ -1,0 +1,67 @@
+name: "CD - Build & Push Docker Hub"
+
+on:
+  workflow_call:
+    inputs:
+      image_tag:
+        description: "Tag de version de l'image Docker (dev, staging, prod, etc.)"
+        required: true
+        type: string
+    secrets:
+      DOCKERHUB_USERNAME:
+        required: true
+      DOCKERHUB_TOKEN:
+        required: true
+
+jobs:
+  docker-frontend:
+    name: Build & Push - Frontend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v7
+
+      - name: Configuration de Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Connexion au registre Docker Hub
+        uses: docker/login-action@v4
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build et Push de l'image Frontend
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/cards-collection-front:${{ inputs.image_tag }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/cards-collection-front:${{ github.sha }}
+
+  docker-backend:
+    name: Build & Push - API Backend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v7
+
+      - name: Configuration de Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Connexion au registre Docker Hub
+        uses: docker/login-action@v4
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build et Push de l'image Backend API
+        uses: docker/build-push-action@v7
+        with:
+          context: ./api
+          file: ./api/Dockerfile
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/cards-collection-api:${{ inputs.image_tag }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/cards-collection-api:${{ github.sha }}

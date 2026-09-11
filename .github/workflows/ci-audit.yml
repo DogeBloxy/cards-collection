@@ -1,0 +1,32 @@
+name: "CI - Audit des Dépendances"
+
+on:
+  workflow_call:
+
+jobs:
+  audit:
+    name: Audit Sécurité Dépendances
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v7
+
+      - name: Configuration de Node.js avec Cache npm
+        uses: actions/setup-node@v7
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: |
+            package-lock.json
+            api/package-lock.json
+
+      - name: Audit de sécurité - Frontend
+        run: |
+          echo "=== Audit des dépendances Frontend ==="
+          npm audit --audit-level=high
+
+      - name: Audit de sécurité - API Backend
+        run: |
+          echo "=== Audit des dépendances API Backend ==="
+          cd api
+          npm audit --audit-level=high
