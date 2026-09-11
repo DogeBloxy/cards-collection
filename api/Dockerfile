@@ -5,8 +5,8 @@ WORKDIR /usr/src/app
 # Copie des fichiers de dépendances de l'API
 COPY package*.json ./
 
-# Installation des dépendances de production uniquement
-RUN npm ci --only=production
+# Installation des dépendances de production
+RUN npm install --omit=dev
 
 # Copie du code source de l'API
 COPY . .

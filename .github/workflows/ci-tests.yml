@@ -56,7 +56,7 @@ jobs:
 
       - name: Installation des dépendances API
         working-directory: ./api
-        run: npm ci
+        run: npm install
 
       - name: Exécution des tests d'intégration avec le service PostgreSQL
         working-directory: ./api

@@ -1,5 +1,4 @@
-const { where } = require('sequelize');
-const Card = require('../models/cards.model')
+const Card = require('../models/cards.model');
 
 class CardController {
 
@@ -41,10 +40,10 @@ class CardController {
     // DELETE /cards/:id
     async delete(req, res) {
         try {
-            const id = req.params.id
-            const card = await Card.destroy({where: {id: id}});
+            const id = req.params.id;
+            await Card.destroy({ where: { id: id } });
 
-            res.status(204).json({})
+            res.status(204).json({});
         }
         catch (error) {
             res.status(500).json({
