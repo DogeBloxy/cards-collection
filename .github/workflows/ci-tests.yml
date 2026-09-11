@@ -1,0 +1,71 @@
+name: "CI - Tests Automatisés"
+
+on:
+  workflow_call:
+
+jobs:
+  test-frontend:
+    name: Tests Unitaires Frontend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      - name: Configuration de Node.js avec Cache npm
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
+
+      - name: Installation des dépendances Frontend
+        run: npm ci
+
+      - name: Exécution des tests Frontend (Vitest)
+        run: npm test
+
+  test-backend:
+    name: Tests d'Intégration API (PostgreSQL)
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: cards_test
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      - name: Configuration de Node.js avec Cache npm
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: api/package-lock.json
+
+      - name: Installation des dépendances API
+        working-directory: ./api
+        run: npm ci
+
+      - name: Exécution des tests d'intégration avec le service PostgreSQL
+        working-directory: ./api
+        env:
+          NODE_ENV: test
+          DB_DIALECT: postgres
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DB_NAME: cards_test
+          DB_USER: test_user
+          DB_PASS: test_password
+        run: npm test

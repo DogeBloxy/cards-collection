@@ -4,7 +4,8 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node --test tests/**/*.test.js",
+    "lint": "node --check server.js app.js",
     "dev": "nodemon server.js"
   },
   "keywords": [],
@@ -15,10 +16,13 @@
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
+    "pg": "^8.13.3",
+    "pg-hstore": "^2.3.4",
     "sequelize": "^6.37.7",
     "sqlite3": "^5.1.7"
   },
   "devDependencies": {
-    "nodemon": "^3.1.11"
+    "nodemon": "^3.1.11",
+    "supertest": "^7.0.0"
   }
 }

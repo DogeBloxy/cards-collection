@@ -1,0 +1,32 @@
+name: "Pipeline CI - Intégration Continue"
+
+on:
+  push:
+    branches:
+      - main
+      - staging
+      - develop
+  pull_request:
+    branches:
+      - main
+      - staging
+      - develop
+  workflow_dispatch:
+
+jobs:
+  audit-dependencies:
+    name: "Audit Dépendances"
+    uses: ./.github/workflows/ci-audit.yml
+
+  code-quality:
+    name: "Qualité du Code"
+    uses: ./.github/workflows/ci-quality.yml
+
+  automated-tests:
+    name: "Tests Automatisés"
+    uses: ./.github/workflows/ci-tests.yml
+
+  create-artifacts:
+    name: "Génération Artefacts"
+    needs: [code-quality, automated-tests]
+    uses: ./.github/workflows/ci-artifacts.yml

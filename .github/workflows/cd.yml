@@ -1,0 +1,84 @@
+name: "Pipeline CD - Déploiement Continu"
+
+on:
+  workflow_run:
+    workflows: ["Pipeline CI - Intégration Continue"]
+    types: [completed]
+    branches:
+      - staging
+      - main
+  workflow_dispatch:
+    inputs:
+      target_env:
+        description: "Environnement cible"
+        required: true
+        default: "pre-production"
+        type: choice
+        options:
+          - pre-production
+          - production
+
+jobs:
+  prepare:
+    name: Résolution Contexte de Déploiement
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    outputs:
+      env_name: ${{ steps.resolve.outputs.env_name }}
+      image_tag: ${{ steps.resolve.outputs.image_tag }}
+    steps:
+      - id: resolve
+        run: |
+          BRANCH="${{ github.event.workflow_run.head_branch }}"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            SELECTED="${{ inputs.target_env }}"
+            if [ "$SELECTED" = "production" ]; then
+              echo "env_name=production" >> $GITHUB_OUTPUT
+              echo "image_tag=prod" >> $GITHUB_OUTPUT
+            else
+              echo "env_name=pre-production" >> $GITHUB_OUTPUT
+              echo "image_tag=staging" >> $GITHUB_OUTPUT
+            fi
+          elif [ "$BRANCH" = "main" ]; then
+            echo "env_name=production" >> $GITHUB_OUTPUT
+            echo "image_tag=prod" >> $GITHUB_OUTPUT
+          else
+            echo "env_name=pre-production" >> $GITHUB_OUTPUT
+            echo "image_tag=staging" >> $GITHUB_OUTPUT
+          fi
+
+  docker-build:
+    name: "Build & Push Docker Hub"
+    needs: prepare
+    uses: ./.github/workflows/cd-docker-build.yml
+    with:
+      image_tag: ${{ needs.prepare.outputs.image_tag }}
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+
+  deploy-pre-production:
+    name: "Déploiement Pre-prod"
+    needs: [prepare, docker-build]
+    if: ${{ needs.prepare.outputs.env_name == 'pre-production' }}
+    uses: ./.github/workflows/cd-deploy.yml
+    with:
+      environment_name: pre-production
+      image_tag: ${{ needs.prepare.outputs.image_tag }}
+    secrets:
+      SSH_HOST: ${{ secrets.SSH_HOST }}
+      SSH_USER: ${{ secrets.SSH_USER }}
+      SSH_KEY: ${{ secrets.SSH_KEY }}
+
+  deploy-production:
+    name: "Déploiement Production"
+    needs: [prepare, docker-build]
+    if: ${{ needs.prepare.outputs.env_name == 'production' }}
+    uses: ./.github/workflows/cd-deploy.yml
+    with:
+      environment_name: production
+      image_tag: ${{ needs.prepare.outputs.image_tag }}
+    secrets:
+      SSH_HOST: ${{ secrets.SSH_HOST }}
+      SSH_USER: ${{ secrets.SSH_USER }}
+      SSH_KEY: ${{ secrets.SSH_KEY }}

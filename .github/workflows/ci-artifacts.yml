@@ -1,0 +1,32 @@
+name: "CI - Création d'Artefacts"
+
+on:
+  workflow_call:
+
+jobs:
+  build-and-artifact:
+    name: Build & Sauvegarde Artefacts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      - name: Configuration de Node.js avec Cache npm
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
+
+      - name: Installation des dépendances Frontend
+        run: npm ci
+
+      - name: Build de l'application Frontend (Vite)
+        run: npm run build
+
+      - name: Sauvegarde de l'artefact de build Frontend
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: dist/
+          retention-days: 7

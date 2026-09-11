@@ -1,0 +1,58 @@
+name: "CD - Déploiement Environnement"
+
+on:
+  workflow_call:
+    inputs:
+      environment_name:
+        description: "Nom de l'environnement GitHub (develop, staging, prod)"
+        required: true
+        type: string
+      image_tag:
+        description: "Tag de version Docker à déployer"
+        required: true
+        type: string
+    secrets:
+      SSH_HOST:
+        required: false
+      SSH_USER:
+        required: false
+      SSH_KEY:
+        required: false
+
+jobs:
+  deploy:
+    name: "Déploiement sur ${{ inputs.environment_name }}"
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ inputs.environment_name }}
+
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      - name: Préparation des variables de déploiement
+        run: |
+          echo "Démarrage du déploiement..."
+          echo "Environnement cible : ${{ inputs.environment_name }}"
+          echo "Version / Tag de l'image : ${{ inputs.image_tag }}"
+
+      - name: Déploiement VPS via SSH
+        if: "${{ secrets.SSH_HOST != '' && secrets.SSH_KEY != '' }}"
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            DEPLOY_DIR="/opt/apps/cards-collection-${{ inputs.environment_name }}"
+            echo "Connexion au VPS établie."
+            echo "Répertoire de déploiement : $DEPLOY_DIR"
+            echo "Déploiement de la version ${{ inputs.image_tag }} sur ${{ inputs.environment_name }}"
+            mkdir -p "$DEPLOY_DIR"
+            cd "$DEPLOY_DIR"
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/cards-collection-front:${{ inputs.image_tag }} || true
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/cards-collection-api:${{ inputs.image_tag }} || true
+            docker compose down || true
+            docker compose up -d || true
+            docker image prune -f || true
+            echo "Déploiement terminé avec succès !"
