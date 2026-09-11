@@ -28,7 +28,7 @@ jobs:
 
     steps:
       - name: Checkout du code
-        uses: actions/checkout@v7
+        uses: actions/checkout@v4
 
       - name: Préparation des variables de déploiement
         run: |
