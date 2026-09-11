@@ -1,4 +1,4 @@
-# 🌌 Saint Seiya - Cards Collection
+# 🌌 Saint Seiya - Cards Collection - Florian & Tiago - Groupe 1
 
 [![CI - Develop](https://github.com/DogeBloxy/cards-collection/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/DogeBloxy/cards-collection/actions/workflows/ci.yml?query=branch%3Adevelop)
 
