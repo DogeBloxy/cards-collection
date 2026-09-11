@@ -1,0 +1,72 @@
+.card {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 1rem;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0px 6px 41px -11px rgb(185, 185, 185);
+}
+
+.card-image {
+    position: relative;
+    width: 100%;
+    z-index: 0;
+}
+
+.card-image-background {
+    background-color: #EDF2FF;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+.card-rarity {
+    margin-left: 1rem;
+    margin-top: 1rem;
+    color: #ffffff;
+    z-index: 1;
+    border-radius: 20px;
+    padding: 5px;
+    width: 15%;
+    text-align: center;
+}
+
+.ssr {
+    background: linear-gradient(160deg,rgba(255, 208, 0, 1) 0%, rgba(255, 139, 56, 1) 100%);
+}
+
+.sr {
+    background: linear-gradient(160deg,rgba(125, 42, 155, 1) 0%, rgba(255, 0, 98, 1) 100%);
+}
+
+.card h3 {
+    margin: 0;
+}
+
+.card-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 1rem;
+}
+
+.card-power {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0;
+}
+
+.card-plus {
+    color: #1CA44C;
+}
+
+.card-stars {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+}
+
+.star {
+    color: rgb(255, 196, 0);
+}

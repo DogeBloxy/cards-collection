@@ -1,0 +1,31 @@
+.collection {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 5rem;
+    gap: 2rem;
+}
+
+.collection h1 {
+    margin: 0;
+}
+
+.search-form {
+    background-color: #FFFFFF;
+    border-radius: 10px;
+}
+
+.cards {
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.cards > div {
+    flex: 0 1 calc(25% - 1.5rem);
+    min-width: 250px;
+}
